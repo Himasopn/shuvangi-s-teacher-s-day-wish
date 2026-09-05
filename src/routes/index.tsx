@@ -230,13 +230,7 @@ function Index() {
             className="animate-tribute-letter mt-16 w-full max-w-2xl"
             style={{ animationDelay: "1.8s" }}
           >
-            <div
-              className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_#000000] backdrop-blur-xl sm:p-14"
-              style={{
-                boxShadow:
-                  "inset 0 1px 0 0 color-mix(in oklab, #ffffff 8%, transparent), 0 40px 120px -40px #000000",
-              }}
-            >
+            <div className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_#000] backdrop-blur-xl sm:p-14">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-petal/40 to-transparent" />
               <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-petal/10 blur-3xl" />
 
