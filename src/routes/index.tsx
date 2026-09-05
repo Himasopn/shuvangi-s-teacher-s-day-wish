@@ -213,18 +213,6 @@ function Index() {
             </span>
           </h1>
 
-          <div
-            className="animate-tribute-line my-8 h-px w-24 bg-gradient-to-r from-transparent via-gold/70 to-transparent"
-            style={{ animationDelay: "1.2s" }}
-          />
-
-          <p
-            className="animate-tribute-fade-up text-sm font-light tracking-[0.18em] text-petal/70"
-            style={{ animationDelay: "1.6s" }}
-          >
-            with gratitude &amp; blossoms
-          </p>
-
           {/* Letter container — revealed after title rises */}
           <div
             className="animate-tribute-letter mt-16 w-full max-w-2xl"
