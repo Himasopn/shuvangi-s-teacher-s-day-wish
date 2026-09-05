@@ -231,10 +231,10 @@ function Index() {
             style={{ animationDelay: "1.8s" }}
           >
             <div
-              className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.8)] backdrop-blur-xl sm:p-14"
+              className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_#000000] backdrop-blur-xl sm:p-14"
               style={{
                 boxShadow:
-                  "inset 0 1px 0 0 rgba(255,255,255,0.08), 0 40px 120px -40px rgba(0,0,0,0.8)",
+                  "inset 0 1px 0 0 color-mix(in oklab, #ffffff 8%, transparent), 0 40px 120px -40px #000000",
               }}
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-petal/40 to-transparent" />
