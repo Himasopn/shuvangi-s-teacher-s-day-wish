@@ -208,14 +208,7 @@ function Index() {
             <span className="block text-5xl font-light text-emberlight sm:text-6xl">
               Happy Teachers&#39; Day,
             </span>
-            <span
-              className="mt-3 block text-6xl font-medium sm:text-7xl"
-              style={{
-                color: "#ffd9b8",
-                textShadow: "0 0 40px rgba(244,197,132,.35)",
-                letterSpacing: "0.01em",
-              }}
-            >
+            <span className="title-glow mt-3 block text-6xl font-medium tracking-[0.01em] text-emberlight sm:text-7xl">
               Shuvangi Ma&#39;am
             </span>
           </h1>
