@@ -275,6 +275,19 @@
   will-change: transform;
 }
 
+@utility title-glow {
+  text-shadow: 0 0 40px color-mix(in oklab, var(--emberlight) 35%, transparent);
+}
+
+@utility petal-gradient {
+  background: radial-gradient(
+    circle at 30% 25%,
+    var(--petal-highlight) 0%,
+    var(--petal) 70%,
+    var(--petaldeep) 100%
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-tribute-title,
   .animate-tribute-letter,
