@@ -172,13 +172,13 @@
     opacity: 0;
     transform: translate3d(0, 40px, 0);
   }
-  45% {
+  50% {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
   100% {
     opacity: 1;
-    transform: translate3d(0, -32px, 0);
+    transform: translate3d(0, -14px, 0);
   }
 }
 
@@ -224,15 +224,18 @@
 
 @keyframes tribute-petal-fall {
   0% {
-    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    transform: translate3d(0, -14vh, 0) rotate(0deg);
     opacity: 0;
   }
-  12% {
-    opacity: 0.9;
+  10% {
+    opacity: 0.75;
+  }
+  85% {
+    opacity: 0.4;
   }
   100% {
-    transform: translate3d(48px, 118vh, 0) rotate(320deg);
-    opacity: 0.15;
+    transform: translate3d(60px, 120vh, 0) rotate(300deg);
+    opacity: 0;
   }
 }
 
@@ -242,7 +245,7 @@
     transform: translateX(0) rotate(0deg);
   }
   50% {
-    transform: translateX(26px) rotate(14deg);
+    transform: translate3d(18px, 0, 0) rotate(10deg);
   }
 }
 
@@ -256,11 +259,13 @@
 }
 
 @utility animate-tribute-title {
-  animation: tribute-title-reveal 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: tribute-title-reveal 2.6s cubic-bezier(0.22, 0.61, 0.24, 1) both;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
 }
 
 @utility animate-tribute-letter {
-  animation: tribute-letter-reveal 1.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: tribute-letter-reveal 2s cubic-bezier(0.22, 0.61, 0.24, 1) both;
   will-change: transform, opacity, filter;
   backface-visibility: hidden;
   transform: translate3d(0, 120px, 0);
@@ -306,4 +311,22 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+@utility tribute-grain {
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.045) 0.5px,
+    transparent 0.6px
+  );
+  background-size: 3px 3px;
+}
+
+@utility tribute-vignette {
+  background: radial-gradient(
+    120% 90% at 50% 40%,
+    transparent 45%,
+    rgba(6, 4, 4, 0.55) 82%,
+    rgba(4, 3, 3, 0.9) 100%
+  );
 }
