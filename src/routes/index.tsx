@@ -15,62 +15,68 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function useScrollParallax() {
-  const [scrollY, setScrollY] = useState(0);
+/** Smoothed scroll value, updated once per frame and eased for silky parallax. */
+function useSmoothScroll() {
+  const [value, setValue] = useState(0);
+  const target = useRef(0);
+  const current = useRef(0);
 
   useEffect(() => {
     let rafId = 0;
-    let latestScrollY = window.scrollY;
+    let running = true;
 
-    const update = () => {
-      setScrollY(latestScrollY);
-      rafId = 0;
+    const onScroll = () => {
+      target.current = window.scrollY;
     };
 
-    const handleScroll = () => {
-      latestScrollY = window.scrollY;
-      if (rafId === 0) {
-        rafId = requestAnimationFrame(update);
+    const tick = () => {
+      if (!running) return;
+      current.current += (target.current - current.current) * 0.12;
+      if (Math.abs(target.current - current.current) < 0.05) {
+        current.current = target.current;
       }
+      setValue(current.current);
+      rafId = requestAnimationFrame(tick);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    current.current = target.current;
+    rafId = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId !== 0) cancelAnimationFrame(rafId);
+      running = false;
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
-  return scrollY;
+  return value;
 }
 
 interface PetalProps {
   left: string;
-  width: number;
-  height: number;
+  size: number;
   duration: number;
   delay: number;
   swayDuration: number;
+  tint: string;
 }
 
-function Petal({ left, width, height, duration, delay, swayDuration }: PetalProps) {
+function Petal({ left, size, duration, delay, swayDuration, tint }: PetalProps) {
   return (
     <div
-      className="petal-gradient pointer-events-none absolute will-change-transform"
+      className="pointer-events-none absolute top-0 will-change-transform"
       style={{
         left,
-        top: 0,
-        width,
-        height,
-        borderRadius: "60% 40% 55% 45%",
+        width: size,
+        height: size * 0.72,
         opacity: 0,
-        animation: `
-          tribute-petal-fall ${duration}s linear infinite,
-          tribute-sway ${swayDuration}s ease-in-out infinite
-        `,
-        animationDelay: `${delay}s, 0s`,
+        borderRadius: "62% 38% 58% 42% / 60% 55% 45% 40%",
+        background: `radial-gradient(circle at 30% 25%, ${tint}, color-mix(in oklab, var(--petaldeep) 70%, transparent) 72%, transparent)`,
+        boxShadow: `0 0 ${size}px color-mix(in oklab, var(--petal) 22%, transparent)`,
+        animation: `tribute-petal-fall ${duration}s linear infinite, tribute-sway ${swayDuration}s ease-in-out infinite`,
+        animationDelay: `${delay}s, ${delay / 2}s`,
       }}
     />
   );
@@ -78,21 +84,24 @@ function Petal({ left, width, height, duration, delay, swayDuration }: PetalProp
 
 function PetalLayer({
   petals,
-  swayDuration,
   scrollY,
   parallaxSpeed,
+  blur,
+  opacity,
 }: {
   petals: PetalProps[];
-  swayDuration: number;
   scrollY: number;
   parallaxSpeed: number;
+  blur: number;
+  opacity: number;
 }) {
   return (
     <div
       className="pointer-events-none absolute inset-0 will-change-transform"
       style={{
-        transform: `translate3d(0, ${scrollY * parallaxSpeed}px, 0)`,
-        animation: `tribute-sway ${swayDuration}s ease-in-out infinite`,
+        transform: `translate3d(0, ${(scrollY * parallaxSpeed).toFixed(2)}px, 0)`,
+        filter: blur > 0 ? `blur(${blur}px)` : undefined,
+        opacity,
       }}
     >
       {petals.map((petal, index) => (
@@ -102,135 +111,122 @@ function PetalLayer({
   );
 }
 
+const nearPetals: PetalProps[] = [
+  { left: "9%", size: 26, duration: 15, delay: 0.4, swayDuration: 8, tint: "var(--petal-highlight)" },
+  { left: "31%", size: 20, duration: 18, delay: 3.2, swayDuration: 10, tint: "var(--petal)" },
+  { left: "57%", size: 30, duration: 13, delay: 1.6, swayDuration: 7, tint: "var(--petal-highlight)" },
+  { left: "78%", size: 22, duration: 16, delay: 5.4, swayDuration: 9, tint: "var(--petal)" },
+  { left: "92%", size: 18, duration: 20, delay: 2.4, swayDuration: 11, tint: "var(--petal)" },
+];
+
+const midPetals: PetalProps[] = [
+  { left: "18%", size: 14, duration: 24, delay: 1.1, swayDuration: 13, tint: "var(--petal)" },
+  { left: "44%", size: 12, duration: 27, delay: 6.5, swayDuration: 14, tint: "var(--petal-highlight)" },
+  { left: "66%", size: 15, duration: 22, delay: 4.2, swayDuration: 12, tint: "var(--petal)" },
+  { left: "86%", size: 11, duration: 29, delay: 8.4, swayDuration: 15, tint: "var(--petal)" },
+];
+
+const farPetals: PetalProps[] = [
+  { left: "13%", size: 9, duration: 34, delay: 2.8, swayDuration: 17, tint: "var(--petal)" },
+  { left: "38%", size: 8, duration: 38, delay: 9.1, swayDuration: 19, tint: "var(--petal)" },
+  { left: "61%", size: 9, duration: 32, delay: 5.7, swayDuration: 18, tint: "var(--petal-highlight)" },
+  { left: "81%", size: 7, duration: 40, delay: 12, swayDuration: 20, tint: "var(--petal)" },
+];
+
 function Index() {
-  const scrollY = useScrollParallax();
+  const scrollY = useSmoothScroll();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const layer1Petals: PetalProps[] = [
-    { left: "12%", width: 20, height: 14, duration: 13, delay: 0.2, swayDuration: 7 },
-    { left: "28%", width: 16, height: 11, duration: 17, delay: 2, swayDuration: 9 },
-    { left: "52%", width: 24, height: 17, duration: 11, delay: 1, swayDuration: 6 },
-    { left: "70%", width: 18, height: 13, duration: 15, delay: 3, swayDuration: 8 },
-    { left: "84%", width: 14, height: 10, duration: 19, delay: 0.5, swayDuration: 10 },
-    { left: "40%", width: 22, height: 15, duration: 14, delay: 4, swayDuration: 7 },
-  ];
-
-  const layer2Petals: PetalProps[] = [
-    { left: "8%", width: 10, height: 8, duration: 22, delay: 1.5, swayDuration: 12 },
-    { left: "63%", width: 9, height: 7, duration: 25, delay: 5, swayDuration: 13 },
-    { left: "90%", width: 11, height: 8, duration: 20, delay: 3.5, swayDuration: 11 },
-  ];
-
-  const layer3Petals: PetalProps[] = [
-    { left: "18%", width: 7, height: 6, duration: 28, delay: 2.2, swayDuration: 14 },
-    { left: "48%", width: 8, height: 6, duration: 30, delay: 6, swayDuration: 15 },
-    { left: "76%", width: 6, height: 5, duration: 26, delay: 4.1, swayDuration: 16 },
-  ];
-
   return (
     <>
       <HeadContent />
       <main className="relative min-h-screen w-full overflow-x-hidden bg-ink font-sans text-emberlight">
-        {/* Ambient glow layers */}
+        {/* Ambient light */}
         <div
-          className="pointer-events-none absolute inset-0 will-change-transform"
-          style={{ transform: `translate3d(0, ${scrollY * 0.05}px, 0)` }}
+          className="pointer-events-none fixed inset-0 will-change-transform"
+          style={{ transform: `translate3d(0, ${(scrollY * 0.04).toFixed(2)}px, 0)` }}
+          aria-hidden="true"
         >
           <div
-            className="absolute left-1/2 top-1/2 h-[150vmax] w-[150vmax] -translate-x-1/2 -translate-y-1/2 opacity-70"
+            className="absolute left-1/2 top-[38%] h-[140vmax] w-[140vmax] -translate-x-1/2 -translate-y-1/2"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(244,197,132,.30), rgba(242,168,120,.12) 42%, transparent 70%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--ember) 22%, transparent), color-mix(in oklab, var(--ember) 7%, transparent) 45%, transparent 72%)",
             }}
           />
           <div
-            className="animate-tribute-glow absolute -right-[10%] -top-[15%] h-[70vmax] w-[70vmax] opacity-70"
+            className="animate-tribute-glow absolute -right-[12%] -top-[18%] h-[62vmax] w-[62vmax]"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(255,217,184,.28), transparent 65%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--emberlight) 20%, transparent), transparent 68%)",
             }}
           />
           <div
-            className="absolute inset-0"
+            className="animate-tribute-glow absolute -bottom-[22%] -left-[14%] h-[54vmax] w-[54vmax]"
             style={{
+              animationDelay: "3.5s",
               background:
-                "linear-gradient(180deg, rgba(10,8,7,0) 40%, rgba(10,8,7,.7) 100%)",
+                "radial-gradient(closest-side, color-mix(in oklab, var(--petaldeep) 14%, transparent), transparent 70%)",
             }}
           />
         </div>
 
-        {/* Parallax petal layers */}
+        {/* Parallax petals — far to near */}
         {mounted && (
-          <>
-            <PetalLayer
-              petals={layer1Petals}
-              swayDuration={16}
-              scrollY={scrollY}
-              parallaxSpeed={0.15}
-            />
-            <PetalLayer
-              petals={layer2Petals}
-              swayDuration={22}
-              scrollY={scrollY}
-              parallaxSpeed={0.08}
-            />
-            <PetalLayer
-              petals={layer3Petals}
-              swayDuration={28}
-              scrollY={scrollY}
-              parallaxSpeed={0.04}
-            />
-          </>
+          <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+            <PetalLayer petals={farPetals} scrollY={scrollY} parallaxSpeed={0.05} blur={3.5} opacity={0.35} />
+            <PetalLayer petals={midPetals} scrollY={scrollY} parallaxSpeed={0.11} blur={1.5} opacity={0.6} />
+            <PetalLayer petals={nearPetals} scrollY={scrollY} parallaxSpeed={0.2} blur={0} opacity={0.85} />
+          </div>
         )}
+
+        {/* Texture + vignette */}
+        <div className="tribute-grain pointer-events-none fixed inset-0 opacity-[0.5] mix-blend-soft-light" aria-hidden="true" />
+        <div className="tribute-vignette pointer-events-none fixed inset-0" aria-hidden="true" />
 
         {/* Content */}
         <div
-          className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 py-24 text-center"
-          style={{ transform: `translate3d(0, ${scrollY * -0.03}px, 0)` }}
+          className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 py-28 text-center"
+          style={{ transform: `translate3d(0, ${(scrollY * -0.025).toFixed(2)}px, 0)` }}
         >
           <p
-            className="animate-tribute-fade-up text-[11px] font-medium uppercase tracking-[0.55em] text-gold/80"
-            style={{ animationDelay: "0.2s" }}
+            className="animate-tribute-fade-up text-[11px] font-medium uppercase tracking-[0.6em] text-gold/75"
+            style={{ animationDelay: "0.25s" }}
           >
             Teacher&#39;s Day
           </p>
 
           <div
-            className="animate-tribute-line my-7 h-px w-24 bg-gradient-to-r from-transparent via-petal/70 to-transparent"
-            style={{ animationDelay: "0.5s" }}
+            className="animate-tribute-line mt-6 h-px w-20 bg-gradient-to-r from-transparent via-petal/60 to-transparent"
+            style={{ animationDelay: "0.6s" }}
           />
 
-          <h1 className="animate-tribute-title font-serif leading-[1.02]">
-            <span className="block text-5xl font-light text-emberlight sm:text-6xl">
+          <h1 className="animate-tribute-title mt-14 font-serif leading-[1.06]">
+            <span className="block text-5xl font-light text-emberlight/95 sm:text-6xl">
               Happy Teachers&#39; Day,
             </span>
-            <span className="title-glow mt-3 block text-6xl font-medium tracking-[0.01em] text-emberlight sm:text-7xl">
+            <span className="title-glow mt-5 block text-6xl font-medium tracking-[0.005em] text-emberlight sm:text-7xl">
               Shuvangi Ma&#39;am
             </span>
           </h1>
 
-          {/* Letter container — revealed after title rises */}
+          {/* Letter container — rises from below after the title settles */}
           <div
-            className="animate-tribute-letter mt-16 w-full max-w-2xl"
+            className="animate-tribute-letter mt-24 w-full max-w-2xl"
             style={{ animationDelay: "1.5s" }}
           >
-            <div className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_#000] backdrop-blur-xl sm:p-14">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-petal/40 to-transparent" />
-              <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-petal/10 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[28px] border border-petal/15 bg-ink2/55 p-10 shadow-[0_50px_140px_-50px_#000] backdrop-blur-2xl sm:p-14">
+              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-petal/45 to-transparent" />
+              <div className="pointer-events-none absolute -top-28 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-petal/[0.08] blur-3xl" />
+              <div className="tribute-grain pointer-events-none absolute inset-0 opacity-40 mix-blend-soft-light" />
 
               <div className="relative flex min-h-[180px] items-center justify-center">
-                <span className="text-petal/30">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
+                <span className="text-petal/25">
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 2C9 6 6 9 6 13c0 3.3 2.7 6 6 6s6-2.7 6-6c0-4-3-7-6-11Z" />
                   </svg>
                 </span>
