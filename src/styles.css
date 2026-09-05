@@ -260,7 +260,10 @@
 }
 
 @utility animate-tribute-letter {
-  animation: tribute-letter-reveal 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: tribute-letter-reveal 1.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform: translate3d(0, 120px, 0);
 }
 
 @utility animate-tribute-fade-up {

@@ -216,7 +216,7 @@ function Index() {
           {/* Letter container — revealed after title rises */}
           <div
             className="animate-tribute-letter mt-16 w-full max-w-2xl"
-            style={{ animationDelay: "1.8s" }}
+            style={{ animationDelay: "1.5s" }}
           >
             <div className="relative overflow-hidden rounded-3xl border border-petal/20 bg-ink2/60 p-10 shadow-[0_40px_120px_-40px_#000] backdrop-blur-xl sm:p-14">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-petal/40 to-transparent" />
