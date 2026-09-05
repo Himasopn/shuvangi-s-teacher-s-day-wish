@@ -58,15 +58,13 @@ interface PetalProps {
 function Petal({ left, width, height, duration, delay, swayDuration }: PetalProps) {
   return (
     <div
-      className="pointer-events-none absolute will-change-transform"
+      className="petal-gradient pointer-events-none absolute will-change-transform"
       style={{
         left,
         top: 0,
         width,
         height,
         borderRadius: "60% 40% 55% 45%",
-        background:
-          "radial-gradient(circle at 30% 25%, #ffe3ef, #f4b3cf 70%, #e79bb8)",
         opacity: 0,
         animation: `
           tribute-petal-fall ${duration}s linear infinite,
